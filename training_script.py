@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 # --- 1. Connect to Hopsworks ---
 project = hopsworks.login(
     project="aqi_features_dataset", 
-    api_key_value="wDGNHzlVsvD2hcpx.IUcWBcNoKAwYXp9RZNUKBzhT2Rfo4YL3IXYTBcblGhkFwP5zGS6jrORPphyCL8aZ"
+    api_key_value=os.environ["HOPSWORKS_API_KEY"]
 )
 fs = project.get_feature_store()
 
