@@ -7,7 +7,7 @@ import os
 # This uses the GitHub Secret to get your API key
 project = hopsworks.login(
     project="aqi_features_dataset", 
-    api_key_value=os.environ["HOPSWORKS_API_KEY"]
+    api_key_value=os.environ["HPSW_API_KEY"]
 )
 fs = project.get_feature_store()
 
