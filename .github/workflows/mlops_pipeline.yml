@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies for feature ingestion
         run: |
           python -m pip install --upgrade pip
-          pip install hopsworks==3.6.0 pandas
+          pip install hopsworks>=3.6.0 pandas
           
       - name: Run feature ingestion script (e.g., feature_script.py)
         env:
