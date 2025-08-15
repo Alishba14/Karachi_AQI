@@ -7,7 +7,7 @@ import os # To check if file exists
 from hsfs.client.exceptions import RestAPIError
 
 # --- 1. Connect to Hopsworks and Get Model Registry ---
-def load_latest_model(model_name, version, project_name="aqi_features_dataset", api_key="rVIbPsK6ibgCfJnj.NNYtCUFCV0CpXSiHU3XRnZaxPiyHps4HgS2sJfKWJKK2ILoLTfJQxib3LnU5qygY"):
+def load_latest_model(model_name, version, project_name="aqi_features_dataset", api_key=os.environ["HOPSWORKS_API_KEY"]):
     """Loads the pre-trained machine learning model from Hopsworks Model Registry."""
     try:
         project = hopsworks.login(project=project_name, api_key_value=api_key)
