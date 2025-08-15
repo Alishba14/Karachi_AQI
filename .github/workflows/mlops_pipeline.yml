@@ -32,7 +32,7 @@ jobs:
 
       - name: Run feature ingestion script (e.g., feature_script.py)
         env:
-          HOPSWORKS_API_KEY: ${{ secrets.HPSW_API_KEY }}        
+          HPSW_API_KEY: ${{secrets.HPSW_API_KEY}}
         run: |
           python feature_script.py
 
@@ -56,6 +56,6 @@ jobs:
 
       - name: Run training and registration script
         env:
-          HOPSWORKS_API_KEY: ${{ secrets.HPSW_API_KEY }}  
+          HPSW_API_KEY: ${{secrets.HPSW_API_KEY}}
         run: |
           python training_script.py
