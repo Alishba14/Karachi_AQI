@@ -8,3 +8,4 @@ requests
 numpy
 streamlit
 hopsworks==4.2.*
+hopsworks[kafka,python]
