@@ -5,11 +5,14 @@ import numpy as np
 import joblib
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.model_selection import train_test_split
+
+
 
 # --- 1. Connect to Hopsworks ---
 project = hopsworks.login(
     project="aqi_features_dataset", 
-    api_key_value=os.environ["HPSW_API_KEY"]
+    api_key_value="t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"
 )
 fs = project.get_feature_store()
 
@@ -17,9 +20,9 @@ fs = project.get_feature_store()
 feature_view = fs.get_feature_view(name="aqi_prediction_fv", version=1)
 X_train, X_test, y_train, y_test = feature_view.train_test_split(test_size=0.2)
 
-# Convert to numpy arrays
-y_train = y_train.values.ravel()
-y_test = y_test.values.ravel()
+# # Convert to numpy arrays
+# y_train = y_train.values.ravel()
+# y_test = y_test.values.ravel()
 
 # --- 3. Train Model ---
 print("Training Linear Regression model...")
@@ -56,3 +59,12 @@ try:
 except Exception as e:
     print(f"Registration failed: {e}")
     print("Model trained and saved locally in 'model' folder")
+    
+# Analyzing model performance
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+
+print("Train RMSE:", np.sqrt(mean_squared_error(y_train, y_train_pred)))
+print("Test RMSE:", np.sqrt(mean_squared_error(y_test, y_test_pred)))
+print("Train R2:", r2_score(y_train, y_train_pred))
+print("Test R2:", r2_score(y_test, y_test_pred))

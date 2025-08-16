@@ -9,7 +9,7 @@ from hsfs.client.exceptions import RestAPIError
 
 # connecting with hopsworks
 HOPSWORKS_PROJECT_NAME = "aqi_features_dataset"
-HOPSWORKS_API_KEY = "rVIbPsK6ibgCfJnj.NNYtCUFCV0CpXSiHU3XRnZaxPiyHps4HgS2sJfKWJKK2ILoLTfJQxib3LnU5qygY"
+HOPSWORKS_API_KEY = "t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"
 
 
 @st.cache_resource 

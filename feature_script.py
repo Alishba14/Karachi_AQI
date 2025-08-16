@@ -7,7 +7,7 @@ import os
 # This uses the GitHub Secret to get your API key
 project = hopsworks.login(
     project="aqi_features_dataset", 
-    api_key_value=os.environ["HPSW_API_KEY"]
+    api_key_value="t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"
 )
 fs = project.get_feature_store()
 
@@ -38,4 +38,4 @@ feature_group = fs.get_or_create_feature_group(
 print("Inserting data into Feature Group...")
 feature_group.insert(df_features, write_options={"wait_for_job": True})
 
-print("✅ Feature ingestion successful!")
+print("Feature ingestion successful!")

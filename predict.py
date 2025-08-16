@@ -7,7 +7,7 @@ import os # To check if file exists
 from hsfs.client.exceptions import RestAPIError
 
 # --- 1. Connect to Hopsworks and Get Model Registry ---
-def load_latest_model(model_name, version, project_name="aqi_features_dataset", api_key=os.environ["HOPSWORKS_API_KEY"]):
+def load_latest_model(model_name, version, project_name="aqi_features_dataset", api_key="t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"):
     """Loads the pre-trained machine learning model from Hopsworks Model Registry."""
     try:
         project = hopsworks.login(project=project_name, api_key_value=api_key)
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     
     # Define model to be fetched from the registry
     MODEL_NAME = 'aqi_predictor_model' 
-    MODEL_VERSION = 1
+    MODEL_VERSION = 4
 
     print(f"Loading data from: {DATASET_FILENAME}")
 
@@ -108,6 +108,6 @@ if __name__ == "__main__":
     prediction = make_prediction(model, latest_features)
 
     for i in range(num_hours):
-        print(f"Predicted AQI for hour {i+1}: {prediction[i]:.2f}")
+        print(f"Predicted AQI for hour {i+1}: {float(prediction[i]):.2f}")
         if prediction[i] > 150:
             print("ALERT: Predicted AQI is unhealthy!")
