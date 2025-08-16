@@ -20,7 +20,12 @@ fs = project.get_feature_store()
 feature_view = fs.get_feature_view(name="aqi_prediction_fv", version=1)
 X_train, X_test, y_train, y_test = feature_view.train_test_split(test_size=0.2)
 
-# # Convert to numpy arrays
+joblib.dump(X_train, "X_train.joblib")
+joblib.dump(X_test, "X_test.joblib")
+joblib.dump(y_train, "y_train.joblib")
+joblib.dump(y_test, "y_test.joblib")
+
+# Convert to numpy arrays
 # y_train = y_train.values.ravel()
 # y_test = y_test.values.ravel()
 

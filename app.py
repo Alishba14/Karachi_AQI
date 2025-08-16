@@ -1,4 +1,3 @@
-# app.py - Karachi AQI Prediction Dashboard
 import streamlit as st
 import pandas as pd
 import joblib
@@ -19,12 +18,11 @@ def load_latest_model(model_name="aqi_predictor_model", version=1):
         project = hopsworks.login(project=HOPSWORKS_PROJECT_NAME, api_key_value=HOPSWORKS_API_KEY)
         mr = project.get_model_registry()
         
-        # Download the model artifact
+        # model artifact downloading
         model_instance = mr.get_model(name=model_name, version=version)
         model_dir = model_instance.download()
         
-        # Load the model artifact itself. Ensure the filename matches what was saved by training_script.py.
-        # Based on previous conversations, your model is saved as 'aqi_model.joblib'
+        # loading model artifact, saved by training_script
         model = joblib.load(f"{model_dir}/aqi_model.joblib")
         
         # st.success(f"Successfully loaded model '{model_name}' version {version} from Hopsworks.")
@@ -46,28 +44,27 @@ def load_data(file_path):
     Returns two DataFrames: one for model input and one for display.
     """
     if not os.path.exists(file_path):
-        st.error(f"Error: Data file not found at '{file_path}'. Please ensure 'karachi_AQI_features_engineered.csv' is in the same directory as app.py or provide the full path.")
+        st.error(f"Error: Data file not found at '{file_path}'. Please ensure that 'karachi_AQI_features_engineered.csv' is in the same directory as app.py or provide the full path.")
         return None, None
     try:
-        # Load the CSV without setting 'time' as index initially
         df_raw = pd.read_csv(file_path)
         
-        # Create a copy for model input: convert 'time' to numerical Unix timestamp (milliseconds)
+        #convert 'time' to numerical Unix timestamp (milliseconds)
         df_model_input = df_raw.copy()
         df_model_input['time'] = pd.to_datetime(df_model_input['time']).astype('int64') // 10**6
         
-        # Create a separate copy for display: convert 'time' to datetime and set as index
+        #convert 'time' to datetime and set as index
         df_display = df_raw.copy()
         df_display['time'] = pd.to_datetime(df_display['time'])
         df_display.set_index('time', inplace=True)
 
-        # Rename target_pm2_5 to aqi if it exists and aqi doesn't (for consistency)
+        # Rename target_pm2_5 to aqi
         if 'target_pm2_5' in df_model_input.columns and 'aqi' not in df_model_input.columns:
             df_model_input = df_model_input.rename(columns={'target_pm2_5': 'aqi'})
         if 'target_pm2_5' in df_display.columns and 'aqi' not in df_display.columns:
             df_display = df_display.rename(columns={'target_pm2_5': 'aqi'})
         
-        # Interpolate missing values (as done in the notebook)
+        # handles missing values by linear method
         df_model_input.interpolate(method='linear', inplace=True)
         df_display.interpolate(method='linear', inplace=True)
         
@@ -76,21 +73,19 @@ def load_data(file_path):
         st.error(f"Error loading or processing data: {e}")
         return None, None
 
-
-# --- Main Application Logic ---
-
+# App logic
 # Load the model and data
 model = load_latest_model()
 df_for_model, df_for_display = load_data('karachi_AQI_features_engineered.csv')
 
-# Determine feature columns for the model
+
 feature_columns = []
 if df_for_model is not None:
-    # Exclude the target and any other non-feature columns from the model input
+    # preparing feature input columns, excluding aqi and derived aqi column such as calculated aqi
     feature_columns = [col for col in df_for_model.columns if col not in ['aqi', 'calculated_aqi']]
 
 
-# --- Streamlit App Layout ---
+#App Layout
 st.set_page_config(layout="wide", page_title="Karachi AQI Predictor")
 
 st.title("🌏 Karachi AQI Predictor Dashboard")
@@ -99,7 +94,7 @@ st.markdown("Predicting future Air Quality Index (AQI) for Karachi using machine
 if df_for_model is None or df_for_display is None or model is None or not feature_columns:
     st.warning("Application could not load data or model. Please check file paths, API key, and ensure data/model integrity.")
 else:
-    # --- Display Latest AQI Trends ---
+    # cureent week aqi display
     st.header("📈 Latest Historical AQI Trends")
     st.markdown("Displaying the last 7 days of recorded AQI data.")
     
@@ -121,8 +116,7 @@ else:
     st.write("Current AQI (last recorded value):", f"**{df_for_display['aqi'].iloc[-1]:.2f}**")
     st.write(f"Last updated on: **{df_for_display.index[-1].strftime('%Y-%m-%d %H:%M')}**")
 
-    # --- Prediction Section ---
-    # st.header("🔮 Forecast Next Hour's AQI")
+    #Prediction
     
 
     st.header("🌏 Forecast AQI for Multiple Hours")
