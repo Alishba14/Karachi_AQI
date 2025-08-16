@@ -2,7 +2,7 @@ name: Hourly Feature Generation
 
 on:
   schedule:
-    - cron: "0 * * * *" # runs the job at the start of every hour.
+    - cron: '0 * * * *'
 
 jobs:
   run_feature_script:
@@ -14,10 +14,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install "hopsworks[python]"
 
       - name: Run feature script
         run: python feature_script.py
