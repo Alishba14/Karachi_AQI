@@ -7,9 +7,4 @@ seaborn
 requests
 numpy
 streamlit
-<<<<<<< HEAD
 hopsworks==4.2.*
-hopsworks[kafka,python]
-=======
-hopsworks==4.2.*[python]
->>>>>>> f2309175aff541880ae62589ec00e31670db2088
