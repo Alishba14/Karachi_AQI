@@ -7,4 +7,4 @@ seaborn
 requests
 numpy
 streamlit
-hopsworks[python]==4.2.0
+hopsworks==4.2.*
