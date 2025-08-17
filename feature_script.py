@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # --- 1. Connect to Hopsworks ---
-# This uses the GitHub Secret to get your API key
+
 project = hopsworks.login(
     project="aqi_features_dataset", 
     api_key_value="t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"
