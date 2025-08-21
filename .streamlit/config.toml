@@ -1,0 +1,12 @@
+[server]
+runOnSave = true
+[browser]
+gatherUsageStats = false
+[runner]
+magicEnabled = false
+[logger]
+level = "info"
+[client]
+toolbarMode = "minimal"
+[main]
+python_version = "3.9"
