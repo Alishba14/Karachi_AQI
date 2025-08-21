@@ -37,5 +37,4 @@ feature_group = fs.get_or_create_feature_group(
 
 print("Inserting data into Feature Group...")
 feature_group.insert(df_features, write_options={"wait_for_job": True})
-
 print("Feature ingestion successful!")
