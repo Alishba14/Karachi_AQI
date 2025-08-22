@@ -8,3 +8,4 @@ requests
 numpy
 streamlit
 hopsworks==4.2.*
+llvmlite>=0.40.0
