@@ -11,7 +11,7 @@ import numpy as np
 # Inject custom CSS for the background gradient
 st.markdown("""
 <style>
-#root {
+.stApp {
   background: linear-gradient(to bottom, #B0E0E6, #000080);
 }
 </style>
@@ -48,7 +48,7 @@ def load_latest_model(model_name="aqi_predictor_model", version=1):
         st.error(f"An unexpected error occurred while loading the model: {e}")
         return None
 
-@st.cache_data # Caches data loading to prevent re-running on every Streamlit interaction
+@st.cache_data
 def load_data(file_path):
     """
     Loads the preprocessed feature-engineered dataset from a CSV file.
@@ -59,7 +59,7 @@ def load_data(file_path):
         return None, None
     try:
         df_raw = pd.read_csv(file_path)
-
+        
         #convert 'time' to numerical Unix timestamp (milliseconds)
         df_model_input = df_raw.copy()
         df_model_input['time'] = pd.to_datetime(df_model_input['time']).astype('int64') // 10**6
@@ -74,7 +74,7 @@ def load_data(file_path):
             df_model_input = df_model_input.rename(columns={'target_pm2_5': 'aqi'})
         if 'target_pm2_5' in df_display.columns and 'aqi' not in df_display.columns:
             df_display = df_display.rename(columns={'target_pm2_5': 'aqi'})
-
+            
         # handles missing values by linear method
         df_model_input.interpolate(method='linear', inplace=True)
         df_display.interpolate(method='linear', inplace=True)
@@ -100,12 +100,12 @@ def generate_and_save_shap_plots(model, df_for_model, feature_columns):
         
         # Generate and save SHAP Bar Plot
         shap.plots.bar(shap_values, show=False)
-        plt.savefig('shap_feature_importance_bar_lasso_regression.png', bbox_inches='tight')
+        plt.savefig('shap_feature_importance_bar.png', bbox_inches='tight')
         plt.close()
         
         # Generate and save SHAP Summary Plot
         shap.summary_plot(shap_values, sample_data, show=False)
-        plt.savefig('shap_feature_importance_summary_lasso_regression.png', bbox_inches='tight')
+        plt.savefig('shap_feature_importance_summary.png', bbox_inches='tight')
         plt.close()
         
     except Exception as e:
@@ -135,7 +135,7 @@ else:
     # current week aqi display
     st.header("📈 Latest Historical AQI Trends")
     st.markdown("Displaying the last 7 days of recorded AQI data.")
-
+    
     # To avoid the FutureWarning, use a date offset with .loc
     end_date = df_for_display.index[-1]
     start_date = end_date - pd.DateOffset(days=7)
@@ -192,8 +192,8 @@ else:
     st.header("📊 Feature Importance")
     st.markdown("Understanding which features are most impactful in the AQI predictions.")
     
-    SHAP_BAR_PLOT_PATH = 'shap_feature_importance_bar_lasso_regression.png'
-    SHAP_SUMMARY_PLOT_PATH = 'shap_feature_importance_summary_lasso_regression.png'
+    SHAP_BAR_PLOT_PATH = 'shap_feature_importance_bar.png'
+    SHAP_SUMMARY_PLOT_PATH = 'shap_feature_importance_summary.png'
 
     # Check if plots exist, if not, generate them
     if not os.path.exists(SHAP_BAR_PLOT_PATH) or not os.path.exists(SHAP_SUMMARY_PLOT_PATH):
