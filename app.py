@@ -5,26 +5,37 @@ import matplotlib.pyplot as plt
 import os
 import hopsworks
 from hsfs.client.exceptions import RestAPIError
+import shap
+import numpy as np
+
+# Inject custom CSS for the background gradient
+st.markdown("""
+<style>
+#root {
+  background: linear-gradient(to bottom, #B0E0E6, #000080);
+}
+</style>
+""", unsafe_allow_html=True)
 
 # connecting with hopsworks
 HOPSWORKS_PROJECT_NAME = "aqi_features_dataset"
 HOPSWORKS_API_KEY = "t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"
 
 
-@st.cache_resource 
+@st.cache_resource
 def load_latest_model(model_name="aqi_predictor_model", version=1):
     """Loads the pre-trained machine learning model from Hopsworks Model Registry."""
     try:
         project = hopsworks.login(project=HOPSWORKS_PROJECT_NAME, api_key_value=HOPSWORKS_API_KEY)
         mr = project.get_model_registry()
-        
+
         # model artifact downloading
         model_instance = mr.get_model(name=model_name, version=version)
         model_dir = model_instance.download()
-        
+
         # loading model artifact, saved by training_script
         model = joblib.load(f"{model_dir}/aqi_model.joblib")
-        
+
         # st.success(f"Successfully loaded model '{model_name}' version {version} from Hopsworks.")
         return model
     except RestAPIError as e:
@@ -48,11 +59,11 @@ def load_data(file_path):
         return None, None
     try:
         df_raw = pd.read_csv(file_path)
-        
+
         #convert 'time' to numerical Unix timestamp (milliseconds)
         df_model_input = df_raw.copy()
         df_model_input['time'] = pd.to_datetime(df_model_input['time']).astype('int64') // 10**6
-        
+
         #convert 'time' to datetime and set as index
         df_display = df_raw.copy()
         df_display['time'] = pd.to_datetime(df_display['time'])
@@ -63,15 +74,42 @@ def load_data(file_path):
             df_model_input = df_model_input.rename(columns={'target_pm2_5': 'aqi'})
         if 'target_pm2_5' in df_display.columns and 'aqi' not in df_display.columns:
             df_display = df_display.rename(columns={'target_pm2_5': 'aqi'})
-        
+
         # handles missing values by linear method
         df_model_input.interpolate(method='linear', inplace=True)
         df_display.interpolate(method='linear', inplace=True)
-        
+
         return df_model_input, df_display
     except Exception as e:
         st.error(f"Error loading or processing data: {e}")
         return None, None
+    
+def generate_and_save_shap_plots(model, df_for_model, feature_columns):
+    """
+    Generates and saves SHAP plots to the local directory.
+    This function is run only if the plot files don't already exist.
+    """
+    try:
+        # Create a SHAP explainer object
+        explainer = shap.Explainer(model)
+        
+        # Select a sample of data for SHAP value calculation to speed up
+        # the process, e.g., the last 100 data points.
+        sample_data = df_for_model[feature_columns].tail(100)
+        shap_values = explainer(sample_data)
+        
+        # Generate and save SHAP Bar Plot
+        shap.plots.bar(shap_values, show=False)
+        plt.savefig('shap_feature_importance_bar_lasso_regression.png', bbox_inches='tight')
+        plt.close()
+        
+        # Generate and save SHAP Summary Plot
+        shap.summary_plot(shap_values, sample_data, show=False)
+        plt.savefig('shap_feature_importance_summary_lasso_regression.png', bbox_inches='tight')
+        plt.close()
+        
+    except Exception as e:
+        st.error(f"Error generating SHAP plots: {e}")
 
 # App logic
 # Load the model and data
@@ -94,12 +132,15 @@ st.markdown("Predicting future Air Quality Index (AQI) for Karachi using machine
 if df_for_model is None or df_for_display is None or model is None or not feature_columns:
     st.warning("Application could not load data or model. Please check file paths, API key, and ensure data/model integrity.")
 else:
-    # cureent week aqi display
+    # current week aqi display
     st.header("📈 Latest Historical AQI Trends")
     st.markdown("Displaying the last 7 days of recorded AQI data.")
-    
-    last_7_days_df = df_for_display['aqi'].last('7D')
-    
+
+    # To avoid the FutureWarning, use a date offset with .loc
+    end_date = df_for_display.index[-1]
+    start_date = end_date - pd.DateOffset(days=7)
+    last_7_days_df = df_for_display.loc[start_date:end_date]['aqi']
+
     if not last_7_days_df.empty:
         fig, ax = plt.subplots(figsize=(10, 4))
         ax.plot(last_7_days_df.index, last_7_days_df.values, color='blue', linewidth=2)
@@ -116,9 +157,7 @@ else:
     st.write("Current AQI (last recorded value):", f"**{df_for_display['aqi'].iloc[-1]:.2f}**")
     st.write(f"Last updated on: **{df_for_display.index[-1].strftime('%Y-%m-%d %H:%M')}**")
 
-    #Prediction
-    
-
+    # Prediction
     st.header("🌏 Forecast AQI for Multiple Hours")
     num_hours = st.number_input("Select number of hours to forecast (1-72):", min_value=1, max_value=72, value=1)
     predict_button = st.button(f"Predict AQI for Next {num_hours} Hour(s)")
@@ -149,12 +188,17 @@ else:
         except Exception as e:
             st.error(f"Error making prediction: {e}")
             
-    #Feature Importance Visualization
+    # Feature Importance Visualization
     st.header("📊 Feature Importance")
     st.markdown("Understanding which features are most impactful in the AQI predictions.")
     
     SHAP_BAR_PLOT_PATH = 'shap_feature_importance_bar_lasso_regression.png'
     SHAP_SUMMARY_PLOT_PATH = 'shap_feature_importance_summary_lasso_regression.png'
+
+    # Check if plots exist, if not, generate them
+    if not os.path.exists(SHAP_BAR_PLOT_PATH) or not os.path.exists(SHAP_SUMMARY_PLOT_PATH):
+        st.info("Generating SHAP plots for the first time. This may take a moment...")
+        generate_and_save_shap_plots(model, df_for_model, feature_columns)
 
     if os.path.exists(SHAP_BAR_PLOT_PATH):
         st.image(SHAP_BAR_PLOT_PATH, caption='SHAP Feature Importance (Average Impact)', use_column_width=True)
