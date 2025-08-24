@@ -9,5 +9,5 @@ numpy
 streamlit
 hopsworks==4.3.1
 llvmlite==0.44.0
-sqlalchemy>=2.0.31
+sqlalchemy>=2.0.28
 numba==0.61.2
