@@ -7,5 +7,6 @@ seaborn
 requests
 numpy
 streamlit
-hopsworks==4.2.*
-llvmlite>=0.40.0
+hopsworks==4.3.1
+numba>=0.61.0
+llvmlite>=0.44.0
