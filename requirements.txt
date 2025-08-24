@@ -8,5 +8,6 @@ requests
 numpy
 streamlit
 hopsworks==4.3.1
-numba>=0.61.0
-llvmlite>=0.44.0
+llvmlite==0.44.0
+sqlalchemy>=2.0.31
+numba==0.61.2
