@@ -8,5 +8,3 @@ magicEnabled = false
 level = "info"
 [client]
 toolbarMode = "minimal"
-[main]
-python_version = "3.9"
