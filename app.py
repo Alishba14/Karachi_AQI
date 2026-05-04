@@ -19,7 +19,7 @@ st.markdown("""
 
 # connecting with hopsworks
 HOPSWORKS_PROJECT_NAME = "aqi_features_dataset"
-HOPSWORKS_API_KEY = "t29A93H0Tnz50i2X.44jnj8Zbktd3HhUtXeMsXKBfixNUULLxJRf1XDAr3QUKxAJW3Eax40ZhZ5OmkqQ9"
+HOPSWORKS_API_KEY = "Hopswork_API"
 
 
 @st.cache_resource
